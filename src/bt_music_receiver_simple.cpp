@@ -46,6 +46,7 @@ void setup()
       .tx_desc_auto_clear = true // avoiding noise in case of data unavailability
   };
 
+  //Init Library and GPIO Pins
   a2dp_sink.set_i2s_config(i2s_config);
   pinMode(BUTTON_VOL_DOWN_PIN, INPUT_PULLUP);
   pinMode(BUTTON_VOL_UP_PIN, INPUT_PULLUP);
