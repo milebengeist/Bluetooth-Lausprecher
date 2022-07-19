@@ -23,8 +23,8 @@ BluetoothA2DPSink a2dp_sink;
 
 #define BUTTON_VOL_UP_PIN 16
 #define BUTTON_VOL_DOWN_PIN 17
-#define VOL_DELAYTIME 100
 #define BUTTON_PLAY_PAUSE_PIN 13
+#define BUTTON_PRESSED_DELAY 200
 
 unsigned long lastMillis = 0;
 
@@ -66,7 +66,7 @@ void loop()
 
   if (btnVolUpState == LOW)
   {
-    if ((millis() - lastMillis) > VOL_DELAYTIME)
+    if ((millis() - lastMillis) > BUTTON_PRESSED_DELAY)
     { // Nur wenn Zeitspanne zwischen letzem mal schaun > x ms ist
       int currentVolumeValue = a2dp_sink.get_volume();
       a2dp_sink.set_volume(currentVolumeValue += 1);
@@ -76,7 +76,7 @@ void loop()
   }
   if (btnVolDownState == LOW)
   {
-    if ((millis() - lastMillis) > VOL_DELAYTIME)
+    if ((millis() - lastMillis) > BUTTON_PRESSED_DELAY)
     {
       int currentVolumeValue = a2dp_sink.get_volume();
       a2dp_sink.set_volume(currentVolumeValue -= 1);
@@ -84,7 +84,7 @@ void loop()
       lastMillis = millis();
     }
   }
-  if (millis() - lastMillis > 200)
+  if (millis() - lastMillis > BUTTON_PRESSED_DELAY)
   {
     Serial.print(F("CURRENT VOLUME: "));
     Serial.println(a2dp_sink.get_volume());
@@ -94,22 +94,25 @@ void loop()
 
   Serial.println(btnVolUpState);
   delay(100);
-
-  if (btnPlayPause == LOW)
+  if (millis() - lastMillis > BUTTON_PRESSED_DELAY) // wenn aktuelle millisek. - letzter Buttondruck größer als 200
   {
-    switch (a2dp_sink.get_audio_state())
+    if (btnPlayPause == LOW)
     {
-    case ESP_A2D_AUDIO_STATE_REMOTE_SUSPEND:
-      a2dp_sink.play();
-      break;
-    case ESP_A2D_AUDIO_STATE_STARTED:
-      a2dp_sink.pause();
-      break;
-    case ESP_A2D_AUDIO_STATE_STOPPED:
-      a2dp_sink.play();
-      break;
-    default:
-      break;
+      lastMillis = millis();
+      switch (a2dp_sink.get_audio_state())
+      {
+      case ESP_A2D_AUDIO_STATE_REMOTE_SUSPEND:
+        a2dp_sink.play();
+        break;
+      case ESP_A2D_AUDIO_STATE_STARTED:
+        a2dp_sink.pause();
+        break;
+      case ESP_A2D_AUDIO_STATE_STOPPED:
+        a2dp_sink.play();
+        break;
+      default:
+        break;
+      }
     }
   }
 }
