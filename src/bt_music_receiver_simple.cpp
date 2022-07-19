@@ -46,7 +46,7 @@ void setup()
       .tx_desc_auto_clear = true // avoiding noise in case of data unavailability
   };
 
-  //Init Library and GPIO Pins
+  // Init Library and GPIO Pins
   a2dp_sink.set_i2s_config(i2s_config);
   pinMode(BUTTON_VOL_DOWN_PIN, INPUT_PULLUP);
   pinMode(BUTTON_VOL_UP_PIN, INPUT_PULLUP);
@@ -97,12 +97,19 @@ void loop()
 
   if (btnPlayPause == LOW)
   {
-    a2dp_sink.pause();
-    Serial.print(btnPlayPause);
-
-    if (btnPlayPause == LOW)
-
+    switch (a2dp_sink.get_audio_state())
+    {
+    case ESP_A2D_AUDIO_STATE_REMOTE_SUSPEND:
       a2dp_sink.play();
-    Serial.print(btnPlayPause);
+      break;
+    case ESP_A2D_AUDIO_STATE_STARTED:
+      a2dp_sink.pause();
+      break;
+    case ESP_A2D_AUDIO_STATE_STOPPED:
+      a2dp_sink.play();
+      break;
+    default:
+      break;
+    }
   }
 }
