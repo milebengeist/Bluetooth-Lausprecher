@@ -94,8 +94,13 @@ void loop()
 
   Serial.println(btnVolUpState);
   delay(100);
+  Serial.print(F("check lastmillis: "));
+  Serial.println(lastMillis);
+
   if (millis() - lastMillis > BUTTON_PRESSED_DELAY) // wenn aktuelle millisek. - letzter Buttondruck größer als 200
   {
+    Serial.print(F("btnPlayPause state: "));
+    Serial.println(btnPlayPause);
     if (btnPlayPause == LOW)
     {
       lastMillis = millis();
@@ -111,6 +116,7 @@ void loop()
         a2dp_sink.play();
         break;
       default:
+        a2dp_sink.stop();
         break;
       }
     }
