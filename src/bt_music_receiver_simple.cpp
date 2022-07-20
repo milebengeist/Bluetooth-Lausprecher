@@ -128,6 +128,7 @@ void loop()
   {
     Serial.print(F("btnReconnect state: "));
     Serial.print(a2dp_sink.get_connection_state());
+    lastMillis = millis();
     a2dp_sink.reconnect();
   }
 }
