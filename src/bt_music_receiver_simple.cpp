@@ -67,7 +67,7 @@ void loop()
   int btnPlayPause = digitalRead(BUTTON_PLAY_PAUSE_PIN);
   int btnReconnect = digitalRead(BUTTON_RECONNECT);
 
-      if (btnVolUpState == LOW)
+  if (btnVolUpState == LOW)
   {
     if ((millis() - lastMillis) > BUTTON_PRESSED_DELAY)
     { // Nur wenn Zeitspanne zwischen letzem mal schaun > x ms ist
@@ -124,11 +124,14 @@ void loop()
       }
     }
   }
-  if (millis() - lastMillis > BUTTON_RECONNECT)
+  if (btnReconnect == LOW)
   {
-    Serial.print(F("btnReconnect state: "));
-    Serial.print(a2dp_sink.get_connection_state());
-    lastMillis = millis();
-    a2dp_sink.reconnect();
+    if (millis() - lastMillis > BUTTON_PRESSED_DELAY)
+    {
+      Serial.print(F("btnReconnect state: "));
+      Serial.print(a2dp_sink.get_connection_state());
+      lastMillis = millis();
+      a2dp_sink.reconnect();
+    }
   }
 }
