@@ -25,6 +25,7 @@ BluetoothA2DPSink a2dp_sink;
 #define BUTTON_VOL_DOWN_PIN 17
 #define BUTTON_PLAY_PAUSE_PIN 13
 #define BUTTON_PRESSED_DELAY 200
+#define BUTTON_RECONNECT 14
 
 unsigned long lastMillis = 0;
 
@@ -32,7 +33,7 @@ void setup()
 {
 
   a2dp_sink.set_bits_per_sample(32);
-  a2dp_sink.start("Hifi32bit");
+  a2dp_sink.start("OMFG MICHAEL");
   static const i2s_config_t i2s_config = {
       .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX),
       .sample_rate = 44100,                         // corrected by info from bluetooth
@@ -51,6 +52,7 @@ void setup()
   pinMode(BUTTON_VOL_DOWN_PIN, INPUT_PULLUP);
   pinMode(BUTTON_VOL_UP_PIN, INPUT_PULLUP);
   pinMode(BUTTON_PLAY_PAUSE_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_RECONNECT, INPUT_PULLUP);
 }
 
 void loop()
@@ -63,8 +65,9 @@ void loop()
   int btnVolUpState = digitalRead(BUTTON_VOL_UP_PIN);
   int btnVolDownState = digitalRead(BUTTON_VOL_DOWN_PIN);
   int btnPlayPause = digitalRead(BUTTON_PLAY_PAUSE_PIN);
+  int btnReconnect = digitalRead(BUTTON_RECONNECT);
 
-  if (btnVolUpState == LOW)
+      if (btnVolUpState == LOW)
   {
     if ((millis() - lastMillis) > BUTTON_PRESSED_DELAY)
     { // Nur wenn Zeitspanne zwischen letzem mal schaun > x ms ist
@@ -120,5 +123,11 @@ void loop()
         break;
       }
     }
+  }
+  if (millis() - lastMillis > BUTTON_RECONNECT)
+  {
+    Serial.print(F("btnReconnect state: "));
+    Serial.print(a2dp_sink.get_connection_state());
+    a2dp_sink.reconnect();
   }
 }
