@@ -123,15 +123,13 @@ void loop()
         break;
       }
     }
-  }
-  if (btnReconnect == LOW)
-  {
-    if (millis() - lastMillis > BUTTON_PRESSED_DELAY)
+    if (btnReconnect == LOW)
     {
       Serial.print(F("btnReconnect state: "));
       Serial.print(a2dp_sink.get_connection_state());
       lastMillis = millis();
-      a2dp_sink.reconnect();
-    }
+      a2dp_sink.disconnect();
+      a2dp_sink.set_discoverability(ESP_BT_GENERAL_DISCOVERABLE);
+    }       
   }
 }
