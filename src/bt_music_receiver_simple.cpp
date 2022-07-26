@@ -14,11 +14,15 @@ unsigned long lastMillis = 0;
 unsigned long lastMillisSerial = 0;
 
 // Instance of the button.
-EasyButton button(BUTTON_PLAY_PAUSE_PIN,200,true,true);
+EasyButton buttonPlay(BUTTON_PLAY_PAUSE_PIN, 200, true, true);
+EasyButton buttonVolUp(BUTTON_VOL_UP_PIN, 50, true, true);
+EasyButton buttonVolDown(BUTTON_VOL_DOWN_PIN, 50, true, true);
 
 void avrc_metadata_callback(uint8_t data1, const uint8_t *data2);
 void buttonPlayPressed();
 void buttonPlayLongPressed();
+void buttonVolUpPressed();
+void buttonVolDownPressed();
 
 void avrc_metadata_callback(uint8_t data1, const uint8_t *data2)
 {
@@ -55,6 +59,22 @@ void buttonPlayLongPressed()
   a2dp_sink.set_discoverability(ESP_BT_GENERAL_DISCOVERABLE);
 }
 
+void buttonVolUpPressed()
+{
+  Serial.println(F("Button VOL UP was Pressed"));
+  int currentVolumeValue = a2dp_sink.get_volume();
+  a2dp_sink.set_volume(currentVolumeValue += 1);
+  Serial.println(F("Volume was set UP"));
+}
+
+void buttonVolDownPressed()
+{
+  Serial.println(F("Button VOL DOWN was Pressed"));
+  int currentVolumeValue = a2dp_sink.get_volume();
+  a2dp_sink.set_volume(currentVolumeValue -= 1);
+  Serial.println(F("Volume was set DOWN"));
+}
+
 void setup()
 {
   Serial.begin(115200);
@@ -81,83 +101,22 @@ void setup()
   a2dp_sink.set_i2s_config(i2s_config);
   pinMode(BUTTON_VOL_DOWN_PIN, INPUT_PULLUP);
   pinMode(BUTTON_VOL_UP_PIN, INPUT_PULLUP);
-  //pinMode(BUTTON_PLAY_PAUSE_PIN, INPUT_PULLUP);
+  // pinMode(BUTTON_PLAY_PAUSE_PIN, INPUT_PULLUP);
   pinMode(BUTTON_RECONNECT, INPUT_PULLUP);
 
-  button.begin();
-  
+  buttonPlay.begin();
+  buttonVolUp.begin();
+  buttonVolDown.begin();
 
-  button.onPressed(buttonPlayPressed);
-  button.onPressedFor(2000, buttonPlayLongPressed);
+  buttonPlay.onPressed(buttonPlayPressed);
+  buttonVolUp.onPressed(buttonVolUpPressed);
+  buttonVolDown.onPressed(buttonVolDownPressed);
+  buttonPlay.onPressedFor(2000, buttonPlayLongPressed);
 }
 
 void loop()
 {
- button.read();
-  // Serial.print("LastMillis: ");
-  // Serial.println(lastMillis);
-
-  // TODO Play/Pause implementieren
-  int btnVolUpState = digitalRead(BUTTON_VOL_UP_PIN);
-  int btnVolDownState = digitalRead(BUTTON_VOL_DOWN_PIN);
-  //int btnPlayPause = digitalRead(BUTTON_PLAY_PAUSE_PIN);
-  int btnReconnect = digitalRead(BUTTON_RECONNECT);
-
-  if ((millis() - lastMillis) > (BUTTON_PRESSED_DELAY / 4)) // wenn aktuelle millisek. - letzter Buttondruck größer als 200/4 = 50
-  {
-    // Button VOL UP
-    if (btnVolUpState == LOW)
-    {
-      lastMillis = millis();
-      Serial.println(F("Button VOL UP was Pressed"));
-      int currentVolumeValue = a2dp_sink.get_volume();
-      a2dp_sink.set_volume(currentVolumeValue += 1);
-      Serial.println(F("Volume was set UP"));
-      // lastMillis = millis();
-    }
-
-    // Button VOL DOWN
-    if (btnVolDownState == LOW)
-    {
-      lastMillis = millis();
-      Serial.println(F("Button VOL DOWN was Pressed"));
-      int currentVolumeValue = a2dp_sink.get_volume();
-      a2dp_sink.set_volume(currentVolumeValue -= 1);
-      Serial.println(F("Volume was set DOWN"));
-    }
-  }
-
-  /* if ((millis() - lastMillis) > BUTTON_PRESSED_DELAY) // wenn aktuelle millisek. - letzter Buttondruck größer als 200
-  {
-    if (btnPlayPause == LOW)
-    {
-      lastMillis = millis();
-      Serial.println(F("Button VOL PLAY/PAUSE was Pressed"));
-      switch (a2dp_sink.get_audio_state())
-      {
-      case ESP_A2D_AUDIO_STATE_REMOTE_SUSPEND:
-        a2dp_sink.play();
-        break;
-      case ESP_A2D_AUDIO_STATE_STARTED:
-        a2dp_sink.pause();
-        break;
-      case ESP_A2D_AUDIO_STATE_STOPPED:
-        a2dp_sink.play();
-        break;
-      default:
-        a2dp_sink.stop();
-        break;
-      }
-      if (btnReconnect == LOW)
-      {
-        lastMillis = millis();
-        Serial.println(F("Button RECONNECT was Pressed"));
-        Serial.print(F("btnReconnect state: "));
-        Serial.print(a2dp_sink.get_connection_state());
-        a2dp_sink.disconnect();
-        a2dp_sink.set_discoverability(ESP_BT_GENERAL_DISCOVERABLE);
-      }
-    }
-  }
-  */
+  buttonPlay.read();
+  buttonVolUp.read();
+  buttonVolDown.read();
 }
